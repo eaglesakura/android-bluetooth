@@ -1,5 +1,9 @@
 package com.eaglesakura.android.bluetooth;
 
+import com.eaglesakura.android.bluetooth.beacon.BeaconData;
+import com.eaglesakura.android.thread.ui.UIHandler;
+import com.eaglesakura.util.LogUtil;
+
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
@@ -9,10 +13,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
-import com.eaglesakura.android.bluetooth.beacon.BeaconData;
-import com.eaglesakura.android.thread.ui.UIHandler;
-import com.eaglesakura.util.LogUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -132,8 +132,6 @@ public class BluetoothDeviceScanner {
 
     /**
      * キャッシュから指定したデバイスを削除する
-     *
-     * @param device
      */
     public void remove(BluetoothDevice device) {
         cleanDeviceCaches();
@@ -433,8 +431,6 @@ public class BluetoothDeviceScanner {
 
         /**
          * 更新日時を取得する
-         *
-         * @return
          */
         public Date getUpdatedDate() {
             return updatedDate;
@@ -446,7 +442,6 @@ public class BluetoothDeviceScanner {
          * 距離は概算となる。また、揺らぎがかなり大きいので、参考値程度に考える。
          *
          * @param fromAverage trueの場合、平均のRSSIを使用する。falseの場合は最新のRSSIを使用する
-         *
          * @return デバイスからの距離(m)
          */
         public double calcDeviceDistanceMeter(boolean fromAverage) {
@@ -581,7 +576,6 @@ public class BluetoothDeviceScanner {
      *
      * @param rssi    電波強度
      * @param txPower BLEデバイス電波出力
-     *
      * @return 距離(メートル)
      */
     public static double calcDeviceDistance(int rssi, int txPower) {
@@ -607,7 +601,6 @@ public class BluetoothDeviceScanner {
      * 精度を上げるため、平均RSSIを使用してチェックする。
      *
      * @param devices 検索対象のデバイス一覧
-     *
      * @return デバイス
      */
     public static BluetoothDeviceCache pickNearDevice(List<BluetoothDeviceCache> devices) {
@@ -631,10 +624,6 @@ public class BluetoothDeviceScanner {
      * 距離が近い順番にソートする
      * <br>
      * typoのため非推奨
-     *
-     * @param devices
-     *
-     * @return
      */
     @Deprecated
     public static List<BluetoothDeviceCache> softNearDevices(List<BluetoothDeviceCache> devices) {
@@ -643,10 +632,6 @@ public class BluetoothDeviceScanner {
 
     /**
      * 距離が近い順番にソートする
-     *
-     * @param devices
-     *
-     * @return
      */
     public static List<BluetoothDeviceCache> sortNearDevices(List<BluetoothDeviceCache> devices) {
 

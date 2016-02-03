@@ -1,12 +1,12 @@
 package com.eaglesakura.android.bluetooth.p2p;
 
-import java.io.IOException;
-import java.util.UUID;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+
+import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Bluetooth通信用親機となるサーバー
@@ -31,8 +31,6 @@ public class BluetoothServer extends BluetoothP2PConnector {
 
     /**
      * サーバーのリクエスト待ち時間を指定する
-     *
-     * @param serverRequestTimeout
      */
     public void setServerRequestTimeoutMs(long serverRequestTimeout) {
         this.serverRequestTimeoutMs = serverRequestTimeout;

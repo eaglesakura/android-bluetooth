@@ -1,5 +1,15 @@
 package com.eaglesakura.android.bluetooth.p2p;
 
+import com.eaglesakura.android.thread.async.AsyncAction;
+import com.eaglesakura.android.thread.async.ThreadSyncRunnerBase;
+import com.eaglesakura.android.thread.ui.UIHandler;
+import com.eaglesakura.io.data.DataPackage;
+import com.eaglesakura.util.LogUtil;
+import com.eaglesakura.util.Util;
+
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,16 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
-
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-
-import com.eaglesakura.android.thread.async.AsyncAction;
-import com.eaglesakura.android.thread.async.ThreadSyncRunnerBase;
-import com.eaglesakura.android.thread.ui.UIHandler;
-import com.eaglesakura.io.data.DataPackage;
-import com.eaglesakura.util.LogUtil;
-import com.eaglesakura.util.Util;
 
 /**
  * P2Pコネクタの基底クラス
@@ -130,8 +130,6 @@ public abstract class BluetoothP2PConnector {
 
     /**
      * 送受信時のスレッド待機時間を指定する
-     *
-     * @param threadWaitTimeMs
      */
     public void setThreadWaitTimeMs(long threadWaitTimeMs) {
         this.threadWaitTimeMs = threadWaitTimeMs;
@@ -139,8 +137,6 @@ public abstract class BluetoothP2PConnector {
 
     /**
      * 送受信のタイムアウト時間を指定する
-     *
-     * @param connectorTimeoutMs
      */
     public void setConnectorTimeoutMs(long connectorTimeoutMs) {
         this.connectorTimeoutMs = connectorTimeoutMs;
@@ -156,8 +152,6 @@ public abstract class BluetoothP2PConnector {
 
     /**
      * リスナを追加する
-     *
-     * @param listener
      */
     public void addListener(P2PConnectorListener listener) {
         Util.addUnique(listeners, listener);
@@ -290,8 +284,6 @@ public abstract class BluetoothP2PConnector {
 
     /**
      * 受信処理用スレッドを開始する
-     *
-     * @param socket
      */
     protected void startInputThread(final BluetoothSocket socket) {
         synchronized (lock) {
@@ -352,8 +344,6 @@ public abstract class BluetoothP2PConnector {
 
     /**
      * 送信処理用スレッドを開始する
-     *
-     * @param socket
      */
     protected void startOutputThread(final BluetoothSocket socket) {
 
@@ -424,8 +414,6 @@ public abstract class BluetoothP2PConnector {
 
     /**
      * 送信データを一つ取得する
-     *
-     * @return
      */
     public DataPackage popSendData() {
         synchronized (sendLock) {
@@ -438,8 +426,6 @@ public abstract class BluetoothP2PConnector {
 
     /**
      * データの送信リクエストを行う
-     *
-     * @param pack
      */
     public void requestSendData(DataPackage pack) {
         synchronized (sendLock) {
@@ -449,8 +435,6 @@ public abstract class BluetoothP2PConnector {
 
     /**
      * 送信リクエストを削除する
-     *
-     * @param uniqueId
      */
     public void removeSendRequest(String uniqueId) {
         synchronized (sendLock) {
@@ -475,8 +459,6 @@ public abstract class BluetoothP2PConnector {
 
     /**
      * 指定個数のキャッシュを超えた場合にクリアしてしまう
-     *
-     * @param maxRequest
      */
     public void clearSendRequestOver(int maxRequest) {
         synchronized (sendLock) {
@@ -496,25 +478,16 @@ public abstract class BluetoothP2PConnector {
     public interface P2PConnectorListener {
         /**
          * データを受信した
-         *
-         * @param self
-         * @param buffer
          */
         void onDataReceived(BluetoothP2PConnector self, byte[] buffer);
 
         /**
          * データの送信が完了した
-         *
-         * @param self
-         * @param pack
          */
         void onDataSended(BluetoothP2PConnector self, DataPackage pack);
 
         /**
          * ステートが変更された
-         *
-         * @param self
-         * @param state
          */
         void onConnectorStateChanged(BluetoothP2PConnector self, ConnectorState state);
     }

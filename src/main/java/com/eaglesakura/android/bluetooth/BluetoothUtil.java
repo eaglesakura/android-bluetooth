@@ -12,8 +12,6 @@ public class BluetoothUtil {
     /**
      * BluetoothLEをサポートしている場合true
      * API18以上ならtrue
-     *
-     * @return
      */
     public static boolean isSupportedBluetoothLeAPILevel() {
         return Build.VERSION.SDK_INT >= 18;
@@ -21,9 +19,6 @@ public class BluetoothUtil {
 
     /**
      * BluetoothLEに対応しているデバイスの場合trueを返す
-     *
-     * @param context
-     * @return
      */
     @SuppressLint("InlinedApi")
     public static boolean isSupportedBluetoothLE(Context context) {
@@ -36,9 +31,6 @@ public class BluetoothUtil {
 
     /**
      * Bluetoothに対応しているデバイスの場合trueを返す
-     *
-     * @param context
-     * @return
      */
     public static boolean isSupportedBluetooth(Context context) {
         return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH);
@@ -46,8 +38,6 @@ public class BluetoothUtil {
 
     /**
      * BluetoothがONであればtrue
-     * @param context
-     * @return
      */
     public static boolean isEnabled(Context context) {
         return ((BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter().isEnabled();

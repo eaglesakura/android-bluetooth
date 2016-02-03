@@ -1,10 +1,10 @@
 package com.eaglesakura.android.bluetooth.p2p;
 
-import java.io.IOException;
-import java.util.UUID;
-
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+
+import java.io.IOException;
+import java.util.UUID;
 
 public class BluetoothClient extends BluetoothP2PConnector {
 

@@ -1,9 +1,9 @@
 package com.eaglesakura.android.bluetooth.beacon;
 
-import android.bluetooth.BluetoothDevice;
-
 import com.eaglesakura.io.DataInputStream;
 import com.eaglesakura.util.StringUtil;
+
+import android.bluetooth.BluetoothDevice;
 
 import java.io.ByteArrayInputStream;
 import java.util.UUID;
@@ -72,7 +72,6 @@ public class BeaconData {
      *
      * @param device Bluetooth
      * @param beacon Beacon
-     * @return
      */
     public static String createUniqueID(BluetoothDevice device, BeaconData beacon) {
         return createUniqueID(
@@ -85,12 +84,6 @@ public class BeaconData {
 
     /**
      * 各種情報から一意のIDを生成する
-     *
-     * @param uuid
-     * @param major
-     * @param minor
-     * @param address
-     * @return
      */
     public static String createUniqueID(String uuid, int major, int minor, String address) {
         return String.format("%s/%d/%d/%s/",

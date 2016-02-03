@@ -26,9 +26,6 @@ public class BeaconAdvertiseBuilder {
      * default
      * ** high = 0x4C
      * ** low  = 0x00
-     *
-     * @param high
-     * @param low
      */
     public BeaconAdvertiseBuilder setCompany(byte high, byte low) {
         this.company[0] = high;

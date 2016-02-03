@@ -30,11 +30,23 @@ android {
     }
 }
 
+// Local or maven
+if (!hasProperty("EGLIBRARY_COMPILE_LOCAL")) {
+    ext.EGLIBRARY_COMPILE_LOCAL = false
+}
+
 dependencies {
-    compile 'com.eaglesakura:simple-logger:1.0.+'
-    compile 'com.eaglesakura:simple-utils:1.0.+'
-    compile 'com.eaglesakura:simple-serialize:1.0.+'
-    compile 'com.eaglesakura:android-thread:1.0.+'
+    if (EGLIBRARY_COMPILE_LOCAL) {
+        compile project(':eglibrary:simple-logger')
+        compile project(':eglibrary:simple-utils')
+        compile project(':eglibrary:simple-serialize')
+        compile project(':eglibrary:android-thread')
+    } else {
+        compile 'com.eaglesakura:simple-logger:1.0.+'
+        compile 'com.eaglesakura:simple-utils:1.0.+'
+        compile 'com.eaglesakura:simple-serialize:1.0.+'
+        compile 'com.eaglesakura:android-thread:1.0.+'
+    }
 }
 
 apply plugin: 'maven'

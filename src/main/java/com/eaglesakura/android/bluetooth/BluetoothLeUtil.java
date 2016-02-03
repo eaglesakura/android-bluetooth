@@ -1,12 +1,12 @@
 package com.eaglesakura.android.bluetooth;
 
-import java.util.UUID;
-
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
+
+import java.util.UUID;
 
 @SuppressLint("NewApi")
 public class BluetoothLeUtil {
@@ -18,8 +18,6 @@ public class BluetoothLeUtil {
 
     /**
      * developer.bluetooth.orgに示されるAssigned NumberからUUIDを生成する
-     * @param an
-     * @return
      */
     public static UUID createUUIDFromAssignedNumber(String an) {
         if (an.startsWith("0x")) {
@@ -31,10 +29,6 @@ public class BluetoothLeUtil {
 
     /**
      * 指定したCharacteristicを取得する
-     * @param gatt
-     * @param serviceUuid
-     * @param characteristicUuid
-     * @return
      */
     public static BluetoothGattCharacteristic findBluetoothGattCharacteristic(BluetoothGatt gatt, UUID serviceUuid, UUID characteristicUuid) {
         if (gatt == null) {
@@ -50,8 +44,6 @@ public class BluetoothLeUtil {
 
     /**
      * 通知をONにする
-     * @param gatt
-     * @param characteristic
      */
     public static void notificationEnable(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         gatt.setCharacteristicNotification(characteristic, true);
@@ -64,8 +56,6 @@ public class BluetoothLeUtil {
 
     /**
      * 通知をOFFにする
-     * @param gatt
-     * @param characteristic
      */
     public static void notificationDisable(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         gatt.setCharacteristicNotification(characteristic, false);

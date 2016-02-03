@@ -1,10 +1,10 @@
 package com.eaglesakura.android.bluetooth.beacon.data;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.eaglesakura.android.bluetooth.beacon.BeaconData;
 import com.eaglesakura.util.StringUtil;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Serviceが検知したBeacon情報
@@ -50,8 +50,6 @@ public class PeripheralBeacon implements Parcelable {
 
     /**
      * Beaconを一意に識別可能なIDを生成する
-     *
-     * @return
      */
     public String getUniqueId() {
         BeaconData data = getBeaconData();
