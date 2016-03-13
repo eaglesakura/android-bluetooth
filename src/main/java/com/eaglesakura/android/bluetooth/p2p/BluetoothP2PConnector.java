@@ -1,6 +1,7 @@
 package com.eaglesakura.android.bluetooth.p2p;
 
 import com.eaglesakura.io.data.DataPackage;
+import com.eaglesakura.util.CollectionUtil;
 import com.eaglesakura.util.Util;
 
 import android.bluetooth.BluetoothDevice;
@@ -146,7 +147,7 @@ public abstract class BluetoothP2PConnector {
      * リスナを追加する
      */
     public void addListener(P2PConnectorListener listener) {
-        Util.addUnique(listeners, listener);
+        CollectionUtil.addUnique(listeners, listener);
     }
 
     public void removeListener(P2PConnectorListener listener) {
