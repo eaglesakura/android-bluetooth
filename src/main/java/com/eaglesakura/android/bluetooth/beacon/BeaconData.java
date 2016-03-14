@@ -98,7 +98,7 @@ public class BeaconData {
             throw new IllegalArgumentException("scanRecord.length < 30");
         }
 
-        DataInputStream dis = new DataInputStream(new ByteArrayInputStream(scanRecord), true);
+        DataInputStream dis = new DataInputStream(new ByteArrayInputStream(scanRecord));
         dis.readBuffer(4); // 不要データを読み飛ばす
 
         BeaconData result = new BeaconData();

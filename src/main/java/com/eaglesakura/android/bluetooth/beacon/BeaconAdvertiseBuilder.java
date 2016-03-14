@@ -50,7 +50,7 @@ public class BeaconAdvertiseBuilder {
 
     public byte[] build() {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(os, true);
+        DataOutputStream dos = new DataOutputStream(os);
 
         try {
             // 固定ヘッダ
