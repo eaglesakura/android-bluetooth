@@ -2,13 +2,11 @@ package com.eaglesakura.android.bluetooth.p2p;
 
 import com.eaglesakura.io.data.DataPackage;
 import com.eaglesakura.util.CollectionUtil;
-import com.eaglesakura.util.Util;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -441,16 +439,18 @@ public abstract class BluetoothP2PConnector {
     /**
      * 送信リクエストを削除する
      */
+    @Deprecated
     public void removeSendRequest(String uniqueId) {
-        synchronized (sendLock) {
-            Iterator<DataPackage> iterator = sendDataQueue.iterator();
-            while (iterator.hasNext()) {
-                DataPackage dataPackage = iterator.next();
-                if (dataPackage.getUniqueId().equals(uniqueId)) {
-                    iterator.remove();
-                }
-            }
-        }
+        throw new Error("Not Impl");
+//        synchronized (sendLock) {
+//            Iterator<DataPackage> iterator = sendDataQueue.iterator();
+//            while (iterator.hasNext()) {
+//                DataPackage dataPackage = iterator.next();
+//                if (dataPackage.getUniqueId().equals(uniqueId)) {
+//                    iterator.remove();
+//                }
+//            }
+//        }
     }
 
     /**
