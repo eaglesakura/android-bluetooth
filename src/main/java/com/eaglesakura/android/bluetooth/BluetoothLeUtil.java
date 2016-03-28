@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @SuppressLint("NewApi")
 public class BluetoothLeUtil {
+    public static final String TAG = "ble.util";
 
     /**
      * config
