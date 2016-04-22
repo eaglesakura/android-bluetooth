@@ -155,7 +155,7 @@ public abstract class BluetoothP2PConnector {
     /**
      * 処理を開始する
      *
-     * MEMO: この実相は古い。スレッド制御を外部に行わせるように設計を変更する。
+     * FIXME: この実装は古い。スレッド制御を外部に行わせるように設計を変更する。
      */
     @Deprecated
     public synchronized final void start(final UUID protocol) {
@@ -280,7 +280,7 @@ public abstract class BluetoothP2PConnector {
     /**
      * 受信処理用スレッドを開始する
      *
-     * MEMO : この実相は古い。スレッド制御を外部に移行する。
+     * FIXME : この実相は古い。スレッド制御を外部に移行する。
      */
     @Deprecated
     protected void startInputThread(final BluetoothSocket socket) {
@@ -344,7 +344,7 @@ public abstract class BluetoothP2PConnector {
     /**
      * 送信処理用スレッドを開始する
      *
-     * MEMO : この実相は古い。スレッド制御を外部に移行する
+     * FIXME : この実相は古い。スレッド制御を外部に移行する
      */
     @Deprecated
     protected void startOutputThread(final BluetoothSocket socket) {
