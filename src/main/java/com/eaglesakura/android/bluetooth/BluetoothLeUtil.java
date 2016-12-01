@@ -18,6 +18,34 @@ public class BluetoothLeUtil {
     public static final UUID BLE_UUID_CLIENT_CHARACTERISTIC_CONFIG = createUUIDFromAssignedNumber("0x2902");
 
     /**
+     * ハートレートモニターのBLEサービスを示すUUID
+     * <br>
+     * 基本は0000XXXX-0000-1000-8000-00805f9b34fb
+     * <br>
+     * 参考：
+     * https://developer.bluetooth.org/gatt/services/Pages/ServiceViewer.aspx?u=org.bluetooth.service.heart_rate.xml
+     */
+    public static final UUID BLE_UUID_HEARTRATE_SERVICE = BluetoothLeUtil.createUUIDFromAssignedNumber("0x180d");
+
+
+    /**
+     * 心拍値を示すUUID
+     */
+    public static final UUID BLE_UUID_HEARTRATE_DATA_MEASUREMENT = BluetoothLeUtil.createUUIDFromAssignedNumber("0x2a37");
+
+    /**
+     * バッテリーサービスを示すUUID
+     *
+     * 参考: http://stackoverflow.com/questions/19539535/how-to-get-the-battery-level-after-connect-to-the-ble-device
+     */
+    public static final UUID BLE_UUID_BATTERY_SERVICE = BluetoothLeUtil.createUUIDFromAssignedNumber("0x180f");
+
+    /**
+     * バッテリー残量を示すUUID
+     */
+    public static final UUID BLE_UUID_BATTERY_DATA_LEVEL = BluetoothLeUtil.createUUIDFromAssignedNumber("0x2a19");
+
+    /**
      * developer.bluetooth.orgに示されるAssigned NumberからUUIDを生成する
      */
     public static UUID createUUIDFromAssignedNumber(String an) {
@@ -51,8 +79,10 @@ public class BluetoothLeUtil {
 
         // notificationを有効化する
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(BLE_UUID_CLIENT_CHARACTERISTIC_CONFIG);
-        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        gatt.writeDescriptor(descriptor);
+        if (descriptor != null) {
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            gatt.writeDescriptor(descriptor);
+        }
     }
 
     /**
@@ -63,8 +93,10 @@ public class BluetoothLeUtil {
 
         // notificationを有効化する
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(BLE_UUID_CLIENT_CHARACTERISTIC_CONFIG);
-        descriptor.setValue(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
-        gatt.writeDescriptor(descriptor);
+        if (descriptor != null) {
+            descriptor.setValue(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+            gatt.writeDescriptor(descriptor);
+        }
 
     }
 }
