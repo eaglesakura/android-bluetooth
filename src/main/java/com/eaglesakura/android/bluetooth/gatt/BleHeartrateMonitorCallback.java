@@ -16,7 +16,7 @@ import android.support.annotation.Nullable;
  * 動作確認: Wahoo HR
  */
 @TargetApi(18)
-public abstract class BleHeartrateMonitorCallback implements BleDeviceConnection.Callback {
+public abstract class BleHeartrateMonitorCallback extends BleDeviceConnection.Callback {
 
     /**
      * バッテリー残量

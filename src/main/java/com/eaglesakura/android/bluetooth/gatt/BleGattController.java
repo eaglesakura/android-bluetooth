@@ -8,6 +8,9 @@ import java.util.UUID;
  * Bluetooth GATT制御を行う
  */
 public interface BleGattController {
+    /**
+     * Gattを取得する
+     */
     BluetoothGatt getGatt();
 
     /**

@@ -297,24 +297,24 @@ public class BleDeviceConnection {
         }
     }
 
-    public interface Callback {
+    public static abstract class Callback {
         /**
          * GATT接続に成功した
          */
-        void onGattConnected(BleDeviceConnection self, BleGattController gatt) throws BluetoothException;
+        public abstract void onGattConnected(BleDeviceConnection self, BleGattController gatt) throws BluetoothException;
 
         /**
          * 制御ループ処理を行う
          *
          * ループを終了する場合はtrueを返却する
          */
-        boolean onLoop(BleDeviceConnection self, BleGattController gatt) throws BluetoothException;
+        public abstract boolean onLoop(BleDeviceConnection self, BleGattController gatt) throws BluetoothException;
 
         /**
          * Characteristicが更新された
          *
          * @param characteristic 対象データ
          */
-        void onCharacteristicUpdated(BleDeviceConnection self, BleGattController gatt, BluetoothGattCharacteristic characteristic) throws BluetoothException;
+        public abstract void onCharacteristicUpdated(BleDeviceConnection self, BleGattController gatt, BluetoothGattCharacteristic characteristic) throws BluetoothException;
     }
 }
