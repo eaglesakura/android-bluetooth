@@ -20,6 +20,7 @@ public abstract class BleHeartrateMonitorCallback extends BleDeviceConnection.Ca
 
     /**
      * バッテリー残量
+     * 0-100
      */
     private Integer mBatteryLevel;
 
@@ -52,16 +53,7 @@ public abstract class BleHeartrateMonitorCallback extends BleDeviceConnection.Ca
 
     @Override
     public void onCharacteristicUpdated(BleDeviceConnection self, BleGattController gatt, BluetoothGattCharacteristic characteristic) throws BluetoothException {
-        if (characteristic.getUuid().equals(BluetoothLeUtil.BLE_UUID_BATTERY_DATA_LEVEL)) {
-            boolean notifyRequest = mBatteryLevel == null;
-            mBatteryLevel = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-            BleLog.gatt("HR Monitor Battery[%d]", mBatteryLevel);
-            onUpdateBatteryLevel(mBatteryLevel);
-
-            if (notifyRequest && !gatt.requestNotification(BluetoothLeUtil.BLE_UUID_HEARTRATE_SERVICE, BluetoothLeUtil.BLE_UUID_HEARTRATE_DATA_MEASUREMENT)) {
-                throw new BluetoothGattConnectFailedException("Heartrate Not Found...");
-            }
-        } else if (characteristic.getUuid().equals(BluetoothLeUtil.BLE_UUID_HEARTRATE_DATA_MEASUREMENT)) {
+        if (characteristic.getUuid().equals(BluetoothLeUtil.BLE_UUID_HEARTRATE_DATA_MEASUREMENT)) {
             // Blt 0bit目〜1bit目のフラグで値の型を判断する
             int flag = characteristic.getProperties();
             int format;
@@ -73,6 +65,15 @@ public abstract class BleHeartrateMonitorCallback extends BleDeviceConnection.Ca
 
             mHeartrateBpm = characteristic.getIntValue(format, 1);
             onUpdateHeartrateBpm(mHeartrateBpm);
+        } else if (characteristic.getUuid().equals(BluetoothLeUtil.BLE_UUID_BATTERY_DATA_LEVEL)) {
+            boolean notifyRequest = mBatteryLevel == null;
+            mBatteryLevel = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+            BleLog.gatt("HR Monitor Battery[%d]", mBatteryLevel);
+            onUpdateBatteryLevel(mBatteryLevel);
+
+            if (notifyRequest && !gatt.requestNotification(BluetoothLeUtil.BLE_UUID_HEARTRATE_SERVICE, BluetoothLeUtil.BLE_UUID_HEARTRATE_DATA_MEASUREMENT)) {
+                throw new BluetoothGattConnectFailedException("Heartrate Not Found...");
+            }
         }
     }
 
