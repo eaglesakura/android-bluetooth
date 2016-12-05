@@ -92,47 +92,58 @@ public abstract class BleSpeedCadenceSensorCallback extends BleDeviceConnection.
             final boolean hasCadence;
             final boolean hasSpeed;
             {
-                int flags = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                // ビット[0]がホイール回転数
-                hasCadence = (flags & 0x01) != 0;
+                Integer flags = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                if (flags != null) {
+                    // ビット[0]がホイール回転数
+                    hasCadence = (flags & 0x01) != 0;
 
-                // ビット[1]がクランクケイデンス
-                hasSpeed = (flags & (0x01 << 1)) != 0;
+                    // ビット[1]がクランクケイデンス
+                    hasSpeed = (flags & (0x01 << 1)) != 0;
+                } else {
+                    hasCadence = false;
+                    hasSpeed = false;
+                }
             }
 
             int offset = 1;
 
             // スピードセンサーチェック
             if (hasSpeed) {
-                int revolutions = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, offset);
+                Integer revolutions = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, offset);
                 offset += 4;
 
-                int timestamp = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, offset);
+                Integer timestamp = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, offset);
                 offset += 2;
 
-                mWheelValue = RawSensorValue.nextValue(mWheelValue, revolutions, timestamp);
-                BleLog.gatt("wheel revolutions(%d)  timestamp(%d) RPM(%.1f)", revolutions, timestamp, mWheelValue.getRpm());
+                if (revolutions != null && timestamp != null) {
+                    mWheelValue = RawSensorValue.nextValue(mWheelValue, revolutions, timestamp);
+                    BleLog.gatt("wheel revolutions(%d)  timestamp(%d) RPM(%.1f)", revolutions, timestamp, mWheelValue.getRpm());
+                }
             }
 
             // ケイデンスセンサーチェック
             if (hasCadence) {
-                int revolutions = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, offset);
-                offset += 4;
-
-                int timestamp = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, offset);
+                Integer revolutions = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, offset);
                 offset += 2;
 
-                mCrankValue = RawSensorValue.nextValue(mCrankValue, revolutions, timestamp);
-                BleLog.gatt("crank revolutions(%d)  timestamp(%d) RPM(%.1f)", revolutions, timestamp, mWheelValue.getRpm());
+                Integer timestamp = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, offset);
+                offset += 2;
+
+                if (revolutions != null && timestamp != null) {
+                    mCrankValue = RawSensorValue.nextValue(mCrankValue, revolutions, timestamp);
+                    BleLog.gatt("crank revolutions(%d)  timestamp(%d) RPM(%.1f)", revolutions, timestamp, mWheelValue.getRpm());
+                }
             }
         } else if (characteristic.getUuid().equals(BluetoothLeUtil.BLE_UUID_BATTERY_DATA_LEVEL)) {
-            boolean notifyRequest = mBatteryLevel == null;
-            mBatteryLevel = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-            BleLog.gatt("SC Sensor Battery[%d]", mBatteryLevel);
-            onUpdateBatteryLevel(mBatteryLevel);
-
-            if (notifyRequest && !gatt.requestNotification(BluetoothLeUtil.BLE_UUID_SPEED_AND_CADENCE_SERVICE, BluetoothLeUtil.BLE_UUID_SPEED_AND_CADENCE_MEASUREMENT)) {
-                throw new BluetoothGattConnectFailedException("Speed&Cadence Not Found...");
+            Integer newBatteryLevel = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+            BleLog.gatt("S&C Monitor Battery[%d]", newBatteryLevel);
+            if (newBatteryLevel != null) {
+                boolean notifyRequest = mBatteryLevel == null;
+                mBatteryLevel = newBatteryLevel;
+                onUpdateBatteryLevel(newBatteryLevel);
+                if (notifyRequest && !gatt.requestNotification(BluetoothLeUtil.BLE_UUID_SPEED_AND_CADENCE_SERVICE, BluetoothLeUtil.BLE_UUID_SPEED_AND_CADENCE_MEASUREMENT)) {
+                    throw new BluetoothGattConnectFailedException("S&C Not Found...");
+                }
             }
         }
     }

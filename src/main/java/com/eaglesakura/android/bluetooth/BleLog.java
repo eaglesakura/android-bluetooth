@@ -35,7 +35,7 @@ public class BleLog {
             sAppLogger = new LogUtil.AndroidLogger(Log.class) {
                 @Override
                 protected int getStackDepth() {
-                    return 4;
+                    return 3;
                 }
             }.setStackInfo(BuildConfig.DEBUG);
         }
@@ -58,7 +58,7 @@ public class BleLog {
 
 
     public static void debug(String fmt, Object... args) {
-        String tag = "Fw.Debug";
+        String tag = "Ble.Debug";
 
         LogUtil.setLogger(tag, sAppLogger);
         LogUtil.out(tag, fmt, args);

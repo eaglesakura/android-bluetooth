@@ -63,16 +63,21 @@ public abstract class BleHeartrateMonitorCallback extends BleDeviceConnection.Ca
                 format = BluetoothGattCharacteristic.FORMAT_UINT8;
             }
 
-            mHeartrateBpm = characteristic.getIntValue(format, 1);
-            onUpdateHeartrateBpm(mHeartrateBpm);
+            Integer newHeartrate = characteristic.getIntValue(format, 1);
+            if (newHeartrate != null) {
+                mHeartrateBpm = newHeartrate;
+                onUpdateHeartrateBpm(mHeartrateBpm);
+            }
         } else if (characteristic.getUuid().equals(BluetoothLeUtil.BLE_UUID_BATTERY_DATA_LEVEL)) {
-            boolean notifyRequest = mBatteryLevel == null;
-            mBatteryLevel = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-            BleLog.gatt("HR Monitor Battery[%d]", mBatteryLevel);
-            onUpdateBatteryLevel(mBatteryLevel);
-
-            if (notifyRequest && !gatt.requestNotification(BluetoothLeUtil.BLE_UUID_HEARTRATE_SERVICE, BluetoothLeUtil.BLE_UUID_HEARTRATE_DATA_MEASUREMENT)) {
-                throw new BluetoothGattConnectFailedException("Heartrate Not Found...");
+            Integer newBatteryLevel = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+            BleLog.gatt("HR Monitor Battery[%d]", newBatteryLevel);
+            if (newBatteryLevel != null) {
+                boolean notifyRequest = mBatteryLevel == null;
+                mBatteryLevel = newBatteryLevel;
+                onUpdateBatteryLevel(newBatteryLevel);
+                if (notifyRequest && !gatt.requestNotification(BluetoothLeUtil.BLE_UUID_HEARTRATE_SERVICE, BluetoothLeUtil.BLE_UUID_HEARTRATE_DATA_MEASUREMENT)) {
+                    throw new BluetoothGattConnectFailedException("Heartrate Not Found...");
+                }
             }
         }
     }

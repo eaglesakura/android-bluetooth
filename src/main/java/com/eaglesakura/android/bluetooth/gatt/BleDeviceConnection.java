@@ -6,6 +6,7 @@ import com.eaglesakura.android.bluetooth.error.BluetoothConnectAbortException;
 import com.eaglesakura.android.bluetooth.error.BluetoothException;
 import com.eaglesakura.android.bluetooth.error.BluetoothGattConnectFailedException;
 import com.eaglesakura.android.bluetooth.error.BluetoothGattDisconnectedException;
+import com.eaglesakura.android.bluetooth.error.BluetoothNotEnabledException;
 import com.eaglesakura.android.util.AndroidThreadUtil;
 import com.eaglesakura.lambda.CallbackUtils;
 import com.eaglesakura.lambda.CancelCallback;
@@ -118,6 +119,11 @@ public class BleDeviceConnection {
         BluetoothGatt mGatt;
 
         /**
+         * 削除フラグ
+         */
+        boolean mDestroy;
+
+        /**
          * デバイスの接続状況
          */
         Integer mConnectionState;
@@ -127,12 +133,10 @@ public class BleDeviceConnection {
          */
         Integer mGattState;
 
-        /**
-         * 削除フラグ
-         */
-        boolean mDestroy;
-
         Set<BluetoothGattCharacteristic> mNotificationServices = new HashSet<>();
+
+        BluetoothGattCallbackImpl() {
+        }
 
         /**
          * デバイスを検索する
@@ -140,10 +144,13 @@ public class BleDeviceConnection {
         public void findRemoteDevice() throws BluetoothException {
             // BLE接続チェック
             BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-            mDevice = adapter.getRemoteDevice(mDeviceAddress);
+            if (!adapter.isEnabled()) {
+                throw new BluetoothNotEnabledException();
+            }
 
+            mDevice = adapter.getRemoteDevice(mDeviceAddress);
             // デバイス接続の確認
-            if (!adapter.isEnabled() || mDevice == null) {
+            if (mDevice == null) {
                 throw new BluetoothGattConnectFailedException("Device Error");
             }
         }
@@ -162,6 +169,13 @@ public class BleDeviceConnection {
                         throw new BluetoothGattConnectFailedException("Discover services Failed");
                     }
 
+                    if (mConnectionState != null && mConnectionState == BluetoothProfile.STATE_DISCONNECTED) {
+                        mGattState = null;
+                        mConnectionState = null;
+                        mDevice.connectGatt(mContext, false, this);
+                    }
+
+                    Util.sleep(1);
                 } catch (BluetoothException e) {
                     mDestroy = true;
                     dispose();
