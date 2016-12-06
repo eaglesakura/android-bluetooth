@@ -8,7 +8,6 @@ import com.eaglesakura.lambda.CancelCallback;
 import com.eaglesakura.thread.IntHolder;
 import com.eaglesakura.util.Timer;
 import com.eaglesakura.util.Util;
-import com.ximpleware.extended.xpath.UnsupportedException;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
@@ -139,7 +138,7 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
 
     @Override
     public void connect(Callback callback, CancelCallback cancelCallback) throws BluetoothException {
-        throw new UnsupportedException("Call alwaysConnect();");
+        throw new Error("Call alwaysConnect();");
     }
 
     public static class Session {
@@ -148,12 +147,12 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
         /**
          * GATT接続が完了していればtrue
          */
-        private boolean mGattConnected;
+        boolean mGattConnected;
 
         /**
          * GATTが切断された
          */
-        private boolean mGattDisconnected;
+        boolean mGattDisconnected;
 
         Session(int tryCount) {
             mTryCount = tryCount;
@@ -177,6 +176,14 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
         @Override
         public int hashCode() {
             return mTryCount;
+        }
+
+        @Override
+        public String toString() {
+            return "Session ID[" + mTryCount + "]" +
+                    " GATT CONNECT[" + mGattConnected + "]" +
+                    " DISCONNECT[" + mGattDisconnected + "]"
+                    ;
         }
     }
 

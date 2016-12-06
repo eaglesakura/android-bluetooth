@@ -16,7 +16,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
  */
 public class BleDeviceConnectionTest extends DeviceTestCase {
 
-//    @Test
+    @Test
     public void ハートレートモニターに複数回接続する() throws Throwable {
         BleDeviceConnection connection = new BleDeviceConnection(getContext(), "CE:16:3A:86:48:F9");
 
