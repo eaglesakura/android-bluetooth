@@ -129,7 +129,7 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
                 }
             } finally {
                 // 接続に失敗したのでスリープ時間を伸ばす
-                sleepTimeMs.value = (int) (mBackoff * sleepTimeMs.value);
+                sleepTimeMs.value = Math.min((int) (mBackoff * sleepTimeMs.value), 1000 * 30);
                 session.mGattDisconnected = true;
                 sessionCallback.onSessionFinished(this, session);
             }

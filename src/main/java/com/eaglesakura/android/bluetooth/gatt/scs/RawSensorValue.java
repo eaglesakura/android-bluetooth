@@ -44,6 +44,11 @@ public class RawSensorValue {
      */
     final int mTimestampSum;
 
+    /**
+     * 受信時刻
+     */
+    final long mSystemTimestamp = System.currentTimeMillis();
+
     RawSensorValue(int value, int timestamp) {
         mValueRaw = value;
         mValueOffset = 0;
@@ -84,10 +89,43 @@ public class RawSensorValue {
     }
 
     /**
+     * 適当な古い値からの差分で計算する
+     *
+     * 2点間計算よりも正確になる
+     */
+    public double getRpm(RawSensorValue oldValue) {
+
+        int timeOffset = (mTimestampSum - oldValue.mTimestampSum);
+        double timeOffsetSec = (double) timeOffset / 1024.0;
+        if (timeOffset == 0) {
+            timeOffset = (int) (mSystemTimestamp - oldValue.mSystemTimestamp);
+            if (timeOffset == 0) {
+                // リアルタイムでも変わりない
+                return 0;
+            }
+            timeOffsetSec = (double) timeOffset / 1000.0;
+        }
+
+        final double valueOffset = (mValueSum - oldValue.mValueSum);
+
+        final double mult = 60.0 / timeOffsetSec;
+
+        // 指定時間に行われた回転数から、1分間の回転数を求める
+        return valueOffset * mult;
+    }
+
+    /**
      * 前のセンサー取得からのオフセット秒を取得する
      */
     public double getOffsetTimeSec() {
         return (double) mTimestampOffset / 1024.0;
+    }
+
+    /**
+     * 実際の時刻を取得する
+     */
+    public long getSystemTimestamp() {
+        return mSystemTimestamp;
     }
 
     @Override
@@ -101,6 +139,7 @@ public class RawSensorValue {
         } else {
             int valueOffset = BluetoothLeUtil.get16bitOffset(oldValue.mValueRaw, newValue);
             int timeOffset = BluetoothLeUtil.get16bitOffset(oldValue.mTimestampRaw, newTimestamp);
+
             return new RawSensorValue(
                     newValue, valueOffset, oldValue.mValueSum + valueOffset,
                     newTimestamp, timeOffset, oldValue.mTimestampSum + timeOffset

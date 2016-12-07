@@ -22,7 +22,7 @@ public class BlePeripheralDeviceConnectionTest extends DeviceTestCase {
                         assertTrue(isTestingThread());
                         assertNotNull(session);
                         latestSession = session;
-                        BleLog.debug("onSessionStart[%d]");
+                        BleLog.debug("onSessionStart[%d]", session.getTryCount());
                     }
 
                     @Override
@@ -30,7 +30,7 @@ public class BlePeripheralDeviceConnectionTest extends DeviceTestCase {
                         assertTrue(isTestingThread());
                         assertEquals(session, latestSession);
                         assertTrue(session.mGattDisconnected);
-                        BleLog.debug("onSessionFinished[%d]");
+                        BleLog.debug("onSessionFinished[%d]", session.getTryCount());
                     }
                 },
                 new BleSpeedCadenceSensorCallback() {
@@ -43,8 +43,8 @@ public class BlePeripheralDeviceConnectionTest extends DeviceTestCase {
                     public void onCharacteristicUpdated(BleDeviceConnection self, BleGattController gatt, BluetoothGattCharacteristic characteristic) throws BluetoothException {
                         super.onCharacteristicUpdated(self, gatt, characteristic);
 
-                        BleLog.debug("Wheel   :: " + getWheelValue());
-                        BleLog.debug("Crank   :: " + getCrankValue());
+                        BleLog.debug("Wheel[%s] RPM[%.1f]", getWheelValue(), getWheelRpm());
+                        BleLog.debug("Crank[%s] RPM[%.1f]", getCrankValue(), getCrankRpm());
                         BleLog.debug("Battery :: " + getBatteryLevel());
                     }
                 }, () -> false);

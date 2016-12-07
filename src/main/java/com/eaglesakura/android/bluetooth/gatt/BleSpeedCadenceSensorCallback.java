@@ -8,6 +8,10 @@ import com.eaglesakura.android.bluetooth.gatt.scs.RawSensorValue;
 
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.support.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BLE接続S&Cセンサーの処理を行う
@@ -25,18 +29,24 @@ public abstract class BleSpeedCadenceSensorCallback extends BleDeviceConnection.
     private Integer mBatteryLevel;
 
     /**
-     * クランクから受信した情報
+     * 指定個数キャッシュの最初と最後を比較する
      *
-     * 回転数・経過時間
+     * デフォルトは3つ
      */
-    private RawSensorValue mCrankValue;
+    private int mCacheNum = 5;
 
     /**
-     * ホイールから受信した情報
+     * クランク値キャッシュ
+     * 回転数・経過時間
+     */
+    private List<RawSensorValue> mCrankValueList = new ArrayList<>();
+
+    /**
+     * ホイール値キャッシュ
      *
      * 回転数・経過時間
      */
-    private RawSensorValue mWheelValue;
+    private List<RawSensorValue> mWheelValueList = new ArrayList<>();
 
     @Override
     public void onGattConnected(BleDeviceConnection self, BleGattController gatt) throws BluetoothException {
@@ -52,12 +62,64 @@ public abstract class BleSpeedCadenceSensorCallback extends BleDeviceConnection.
         return mBatteryLevel;
     }
 
-    public RawSensorValue getCrankValue() {
-        return mCrankValue;
+    private double getRpm(List<RawSensorValue> values) {
+        synchronized (values) {
+            if (values.size() < 2) {
+                // 平均を測れない
+                return 0.0;
+            } else {
+                // 最初と末尾から計算する
+                return values.get(0).getRpm(values.get(values.size() - 1));
+            }
+        }
     }
 
+    /**
+     * 新しいデータを先頭に追加し、不要なデータを削除する。
+     */
+    private void addValue(List<RawSensorValue> values, RawSensorValue newValue) {
+        synchronized (values) {
+            values.add(0, newValue);
+            if (values.size() > mCacheNum) {
+                values.remove(values.size() - 1);
+            }
+        }
+    }
+
+    /**
+     * クランク回転速度を取得する
+     */
+    public double getCrankRpm() {
+        return getRpm(mCrankValueList);
+    }
+
+    /**
+     * ホイール回転速度を取得する
+     */
+    public double getWheelRpm() {
+        return getRpm(mWheelValueList);
+    }
+
+    @Nullable
+    public RawSensorValue getCrankValue() {
+        synchronized (mCrankValueList) {
+            if (mCrankValueList.isEmpty()) {
+                return null;
+            } else {
+                return mCrankValueList.get(0);
+            }
+        }
+    }
+
+    @Nullable
     public RawSensorValue getWheelValue() {
-        return mWheelValue;
+        synchronized (mWheelValueList) {
+            if (mWheelValueList.isEmpty()) {
+                return null;
+            } else {
+                return mWheelValueList.get(0);
+            }
+        }
     }
 
     /**
@@ -67,10 +129,7 @@ public abstract class BleSpeedCadenceSensorCallback extends BleDeviceConnection.
      * @return 取得できない場合は0.0, 取得できている場合は時速を返却する
      */
     public double getSpeedKmPerHout(double wheelOuterLengthMM) {
-        if (mWheelValue == null) {
-            return 0.0;
-        }
-        return calcSpeedKmPerHour(mWheelValue.getRpm(), wheelOuterLengthMM);
+        return calcSpeedKmPerHour(getWheelRpm(), wheelOuterLengthMM);
     }
 
     /**
@@ -116,8 +175,11 @@ public abstract class BleSpeedCadenceSensorCallback extends BleDeviceConnection.
                 offset += 2;
 
                 if (revolutions != null && timestamp != null) {
-                    mWheelValue = RawSensorValue.nextValue(mWheelValue, revolutions, timestamp);
-                    BleLog.gatt("wheel revolutions(%d)  timestamp(%d) RPM(%.1f)", revolutions, timestamp, mWheelValue.getRpm());
+                    RawSensorValue newValue = RawSensorValue.nextValue(getWheelValue(), revolutions, timestamp);
+                    addValue(mWheelValueList, newValue);
+                    onUpdateWheelValue(newValue, getWheelRpm());
+
+                    BleLog.gatt("wheel revolutions(%d)  timestamp(%d) RAW RPM(%.1f) AVG RPM(%.1f)", revolutions, timestamp, newValue.getRpm(), getWheelRpm());
                 }
             }
 
@@ -130,8 +192,11 @@ public abstract class BleSpeedCadenceSensorCallback extends BleDeviceConnection.
                 offset += 2;
 
                 if (revolutions != null && timestamp != null) {
-                    mCrankValue = RawSensorValue.nextValue(mCrankValue, revolutions, timestamp);
-                    BleLog.gatt("crank revolutions(%d)  timestamp(%d) RPM(%.1f)", revolutions, timestamp, mWheelValue.getRpm());
+                    RawSensorValue newValue = RawSensorValue.nextValue(getCrankValue(), revolutions, timestamp);
+                    addValue(mCrankValueList, newValue);
+
+                    onUpdateCrankValue(newValue, getCrankRpm());
+                    BleLog.gatt("crank revolutions(%d)  timestamp(%d) RAW RPM(%.1f) AVG RPM(%.1f)", revolutions, timestamp, newValue.getRpm(), getCrankRpm());
                 }
             }
         } else if (characteristic.getUuid().equals(BluetoothLeUtil.BLE_UUID_BATTERY_DATA_LEVEL)) {
@@ -156,13 +221,19 @@ public abstract class BleSpeedCadenceSensorCallback extends BleDeviceConnection.
 
     /**
      * クランク回転情報が更新された
+     *
+     * @param newValue 最新値
+     * @param crankRpm 平均値
      */
-    protected void onUpdateCrankValue(RawSensorValue newValue) {
+    protected void onUpdateCrankValue(RawSensorValue newValue, double crankRpm) {
     }
 
     /**
      * ホイール回転情報が更新された
+     *
+     * @param newValue 最新値
+     * @param crankRpm 平均値
      */
-    protected void onUpdateWheelValue(RawSensorValue newValue) {
+    protected void onUpdateWheelValue(RawSensorValue newValue, double wheelRpm) {
     }
 }
