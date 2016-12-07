@@ -75,6 +75,10 @@ public class RawSensorValue {
         return mValueOffset;
     }
 
+    public int getValueSum() {
+        return mValueSum;
+    }
+
     /**
      * オフセット値を60秒換算して取得する
      */

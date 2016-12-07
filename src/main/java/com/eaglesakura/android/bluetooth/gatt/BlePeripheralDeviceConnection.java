@@ -162,6 +162,10 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
             return mTryCount;
         }
 
+        public boolean isGattConnected() {
+            return mGattConnected;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
