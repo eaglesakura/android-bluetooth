@@ -174,7 +174,7 @@ public class BluetoothDeviceScanner {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            LogUtil.d("receive action :: " + action);
+            LogUtil.out(BluetoothUtil.TAG, "receive action :: " + action);
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 // デバイス検出
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -203,7 +203,7 @@ public class BluetoothDeviceScanner {
                 UIHandler.postUI(new Runnable() {
                     @Override
                     public void run() {
-                        LogUtil.d("stop scan");
+                        LogUtil.out(BluetoothUtil.TAG, "stop scan");
                         stopScan();
                     }
                 });
@@ -260,7 +260,7 @@ public class BluetoothDeviceScanner {
      */
     @SuppressLint("NewApi")
     public synchronized void startScan(long timeoutMs) {
-        LogUtil.d("scan mode :: " + mode);
+        LogUtil.out(BluetoothUtil.TAG, "scan mode :: " + mode);
         if (mode == BluetoothDeviceType.BluetoothLE) {
             bluetoothAdapter = bluetoothManager.getAdapter();
             if (bluetoothAdapter == null) {

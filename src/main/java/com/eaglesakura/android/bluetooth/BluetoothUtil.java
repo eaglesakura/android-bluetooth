@@ -8,6 +8,7 @@ import android.os.Build;
 
 @SuppressLint("NewApi")
 public class BluetoothUtil {
+    public static final String TAG = "bt.util";
 
     /**
      * BluetoothLEをサポートしている場合true
