@@ -6,7 +6,6 @@ import com.eaglesakura.android.bluetooth.error.BluetoothException;
 import com.eaglesakura.lambda.CallbackUtils;
 import com.eaglesakura.lambda.CancelCallback;
 import com.eaglesakura.thread.IntHolder;
-import com.eaglesakura.util.Timer;
 import com.eaglesakura.util.Util;
 
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -32,6 +31,11 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
      */
     private int mDataTimeoutMs = 1000 * 60;
 
+    /**
+     * 機器検索の最大スリープ時間
+     */
+    private int mMaxConnectSleepTimeMs = 1000 * 10;
+
     public BlePeripheralDeviceConnection(Context context, String deviceAddress) {
         super(context, deviceAddress);
     }
@@ -43,6 +47,14 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
      */
     public void setDataTimeoutMs(int dataTimeoutMs) {
         mDataTimeoutMs = dataTimeoutMs;
+    }
+
+    /**
+     * 最大スリープ時間
+     * 接続失敗後、この時間だけスリープして再接続を行なう。
+     */
+    public void setMaxConnectSleepTimeMs(int maxConnectSleepTimeMs) {
+        mMaxConnectSleepTimeMs = maxConnectSleepTimeMs;
     }
 
     /**
@@ -69,9 +81,9 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
                 // キャンセルチェックを行う
                 CancelCallback connectAbortCallback = new CancelCallback() {
                     /**
-                     * 30秒後に強制タイムアウトさせる
+                     * 最大時間まで待ち受ける
                      */
-                    long mAbortTime = System.currentTimeMillis() + Timer.toMilliSec(0, 0, 0, 30, 0);
+                    long mAbortTime = System.currentTimeMillis() + mMaxConnectSleepTimeMs;
 
                     @Override
                     public boolean isCanceled() throws Throwable {
@@ -129,7 +141,7 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
                 }
             } finally {
                 // 接続に失敗したのでスリープ時間を伸ばす
-                sleepTimeMs.value = Math.min((int) (mBackoff * sleepTimeMs.value), 1000 * 30);
+                sleepTimeMs.value = Math.min((int) (mBackoff * sleepTimeMs.value), mMaxConnectSleepTimeMs);
                 session.mGattDisconnected = true;
                 sessionCallback.onSessionFinished(this, session);
             }
