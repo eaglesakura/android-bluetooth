@@ -1,5 +1,6 @@
 package com.eaglesakura.android.bluetooth.gatt;
 
+import com.eaglesakura.android.bluetooth.BleLog;
 import com.eaglesakura.android.bluetooth.error.BluetoothConnectAbortException;
 import com.eaglesakura.android.bluetooth.error.BluetoothDataTimeoutException;
 import com.eaglesakura.android.bluetooth.error.BluetoothException;
@@ -134,9 +135,10 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
 
                 // 通常の方法(onLoop() -> false)で抜けているため、ここで無限ループを終了
                 return;
-            } catch (BluetoothConnectAbortException e) {
+            } catch (BluetoothException e) {
                 // 使用者がキャンセルを求めているならばキャンセルで確定させる
                 if (CallbackUtils.isCanceled(cancelCallback)) {
+                    BleLog.system("Canceled");
                     throw e;
                 }
             } finally {
