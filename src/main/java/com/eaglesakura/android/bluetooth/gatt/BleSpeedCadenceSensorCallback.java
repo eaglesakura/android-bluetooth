@@ -133,7 +133,7 @@ public abstract class BleSpeedCadenceSensorCallback extends BleDeviceConnection.
      * @param wheelOuterLengthMM ミリメートル単位のホイール周長
      * @return 取得できない場合は0.0, 取得できている場合は時速を返却する
      */
-    public double getSpeedKmPerHout(double wheelOuterLengthMM) {
+    public double getSpeedKmPerHour(double wheelOuterLengthMM) {
         return calcSpeedKmPerHour(getWheelRpm(), wheelOuterLengthMM);
     }
 
