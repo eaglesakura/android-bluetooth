@@ -51,11 +51,16 @@ public abstract class BleSpeedCadenceSensorCallback extends BleDeviceConnection.
     @Override
     public void onGattConnected(BleDeviceConnection self, BleGattController gatt) throws BluetoothException {
         // バッテリーレベルの読み込みを行う
-        if (!gatt.requestRead(BluetoothLeUtil.BLE_UUID_BATTERY_SERVICE, BluetoothLeUtil.BLE_UUID_BATTERY_DATA_LEVEL)) {
-            if (!gatt.requestNotification(BluetoothLeUtil.BLE_UUID_SPEED_AND_CADENCE_SERVICE, BluetoothLeUtil.BLE_UUID_SPEED_AND_CADENCE_MEASUREMENT)) {
-                throw new BluetoothGattConnectFailedException("Speed&Cadence Not Found...");
-            }
+        if (mBatteryLevel == null && gatt.requestRead(BluetoothLeUtil.BLE_UUID_BATTERY_SERVICE, BluetoothLeUtil.BLE_UUID_BATTERY_DATA_LEVEL)) {
+            return;
         }
+
+        // データ接続を行う
+        if (gatt.requestNotification(BluetoothLeUtil.BLE_UUID_SPEED_AND_CADENCE_SERVICE, BluetoothLeUtil.BLE_UUID_SPEED_AND_CADENCE_MEASUREMENT)) {
+            return;
+        }
+
+        throw new BluetoothGattConnectFailedException("Speed&Cadence Not Found...");
     }
 
     public Integer getBatteryLevel() {
@@ -232,7 +237,7 @@ public abstract class BleSpeedCadenceSensorCallback extends BleDeviceConnection.
      * ホイール回転情報が更新された
      *
      * @param newValue 最新値
-     * @param crankRpm 平均値
+     * @param wheelRpm 平均値
      */
     protected void onUpdateWheelValue(RawSensorValue newValue, double wheelRpm) {
     }
