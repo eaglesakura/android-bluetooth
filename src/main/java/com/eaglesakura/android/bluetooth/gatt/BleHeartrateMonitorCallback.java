@@ -44,11 +44,15 @@ public abstract class BleHeartrateMonitorCallback extends BleDeviceConnection.Ca
     @Override
     public void onGattConnected(BleDeviceConnection self, BleGattController gatt) throws BluetoothException {
         // バッテリーレベルの読み込みを行う
-        if (!gatt.requestRead(BluetoothLeUtil.BLE_UUID_BATTERY_SERVICE, BluetoothLeUtil.BLE_UUID_BATTERY_DATA_LEVEL)) {
-            if (!gatt.requestNotification(BluetoothLeUtil.BLE_UUID_HEARTRATE_SERVICE, BluetoothLeUtil.BLE_UUID_HEARTRATE_DATA_MEASUREMENT)) {
-                throw new BluetoothGattConnectFailedException("Heartrate Not Found...");
-            }
+        if (mBatteryLevel == null && gatt.requestRead(BluetoothLeUtil.BLE_UUID_BATTERY_SERVICE, BluetoothLeUtil.BLE_UUID_BATTERY_DATA_LEVEL)) {
+            return;
         }
+
+        if (gatt.requestNotification(BluetoothLeUtil.BLE_UUID_HEARTRATE_SERVICE, BluetoothLeUtil.BLE_UUID_HEARTRATE_DATA_MEASUREMENT)) {
+            return;
+        }
+
+        throw new BluetoothGattConnectFailedException("Heartrate Not Found...");
     }
 
     @Override
