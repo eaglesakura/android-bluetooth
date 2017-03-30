@@ -1,6 +1,5 @@
 package com.eaglesakura.android.bluetooth.p2p;
 
-import com.eaglesakura.io.data.DataPackage;
 import com.eaglesakura.util.CollectionUtil;
 
 import android.bluetooth.BluetoothDevice;
@@ -14,6 +13,7 @@ import java.util.UUID;
  * P2Pコネクタの基底クラス
  * 処理を書いておく
  */
+@Deprecated
 public abstract class BluetoothP2PConnector {
 
     //    protected static final UUID PROTOCOL_UUID = BluetoothLeUtil.createUUIDFromAssignedNumber("0x3103");
@@ -111,9 +111,9 @@ public abstract class BluetoothP2PConnector {
     protected final Object sendLock = new Object();
 
     /**
-     * 送信データ一覧
+     * 送信パケット一覧
      */
-    protected final List<DataPackage> sendDataQueue = new ArrayList<DataPackage>();
+    protected final List<byte[]> sendDataQueue = new ArrayList<>();
 
     protected Thread inputThread;
 
@@ -418,7 +418,7 @@ public abstract class BluetoothP2PConnector {
     /**
      * 送信データを一つ取得する
      */
-    public DataPackage popSendData() {
+    public byte[] popSendData() {
         synchronized (sendLock) {
             if (sendDataQueue.isEmpty()) {
                 return null;
@@ -430,9 +430,9 @@ public abstract class BluetoothP2PConnector {
     /**
      * データの送信リクエストを行う
      */
-    public void requestSendData(DataPackage pack) {
+    public void requestSendData(byte[] originBytes) {
         synchronized (sendLock) {
-            sendDataQueue.add(pack);
+            sendDataQueue.add(originBytes);
         }
     }
 
@@ -489,7 +489,7 @@ public abstract class BluetoothP2PConnector {
         /**
          * データの送信が完了した
          */
-        void onDataSended(BluetoothP2PConnector self, DataPackage pack);
+        void onDataSended(BluetoothP2PConnector self, byte[] buffer);
 
         /**
          * ステートが変更された

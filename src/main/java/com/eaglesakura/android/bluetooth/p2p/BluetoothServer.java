@@ -11,6 +11,7 @@ import java.util.UUID;
 /**
  * Bluetooth通信用親機となるサーバー
  */
+@Deprecated
 public class BluetoothServer extends BluetoothP2PConnector {
 
     final Context context;

@@ -1,8 +1,7 @@
 package com.eaglesakura.android.bluetooth;
 
 import com.eaglesakura.android.bluetooth.beacon.BeaconData;
-import com.eaglesakura.android.thread.ui.UIHandler;
-import com.eaglesakura.util.LogUtil;
+import com.eaglesakura.android.thread.UIHandler;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -16,7 +15,6 @@ import android.content.IntentFilter;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -126,7 +124,7 @@ public class BluetoothDeviceScanner {
     public List<BluetoothDeviceCache> getExistDeviceCaches() {
         cleanDeviceCaches();
         synchronized (cacheLock) {
-            return new ArrayList<BluetoothDeviceCache>(deviceCaches);
+            return new ArrayList<>(deviceCaches);
         }
     }
 
@@ -174,7 +172,7 @@ public class BluetoothDeviceScanner {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            LogUtil.out(BluetoothUtil.TAG, "receive action :: " + action);
+            BleLog.debug("receive action :: " + action);
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 // デバイス検出
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -200,12 +198,9 @@ public class BluetoothDeviceScanner {
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 // スキャンを停止させる
-                UIHandler.postUI(new Runnable() {
-                    @Override
-                    public void run() {
-                        LogUtil.out(BluetoothUtil.TAG, "stop scan");
-                        stopScan();
-                    }
+                UIHandler.postUI(() -> {
+                    BleLog.debug("stop scan");
+                    stopScan();
                 });
             }
         }
@@ -260,7 +255,7 @@ public class BluetoothDeviceScanner {
      */
     @SuppressLint("NewApi")
     public synchronized void startScan(long timeoutMs) {
-        LogUtil.out(BluetoothUtil.TAG, "scan mode :: " + mode);
+        BleLog.debug("scan mode :: " + mode);
         if (mode == BluetoothDeviceType.BluetoothLE) {
             bluetoothAdapter = bluetoothManager.getAdapter();
             if (bluetoothAdapter == null) {
@@ -635,19 +630,16 @@ public class BluetoothDeviceScanner {
      */
     public static List<BluetoothDeviceCache> sortNearDevices(List<BluetoothDeviceCache> devices) {
 
-        Collections.sort(devices, new Comparator<BluetoothDeviceCache>() {
-            @Override
-            public int compare(BluetoothDeviceCache lhs, BluetoothDeviceCache rhs) {
-                double lDist = lhs.calcDeviceDistanceMeter(true);
-                double rDist = rhs.calcDeviceDistanceMeter(true);
+        Collections.sort(devices, (lhs, rhs) -> {
+            double lDist = lhs.calcDeviceDistanceMeter(true);
+            double rDist = rhs.calcDeviceDistanceMeter(true);
 
-                if (lDist < rDist) {
-                    return -1;
-                } else if (lDist > rDist) {
-                    return 1;
-                } else {
-                    return 0;
-                }
+            if (lDist < rDist) {
+                return -1;
+            } else if (lDist > rDist) {
+                return 1;
+            } else {
+                return 0;
             }
         });
 

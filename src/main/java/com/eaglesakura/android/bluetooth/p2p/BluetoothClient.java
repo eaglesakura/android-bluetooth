@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothSocket;
 import java.io.IOException;
 import java.util.UUID;
 
+@Deprecated
 public class BluetoothClient extends BluetoothP2PConnector {
 
     BluetoothSocket socket;

@@ -57,7 +57,7 @@ if (!hasProperty("EGLIBRARY_COMPILE_LOCAL")) {
 dependencies {
     if (EGLIBRARY_COMPILE_LOCAL) {
         compile project(':eglibrary:simple-logger')
-        compile project(':eglibrary:simple-serialize')
+        compile project(':eglibrary:android-commons')
 
         /**
          * UnitTest
@@ -65,14 +65,14 @@ dependencies {
         androidTestCompile project(":eglibrary:android-devicetest-support")
         testCompile project(":eglibrary:android-unittest-support")
     } else {
-        compile "com.eaglesakura:simple-logger:1.3.460"
-        compile "com.eaglesakura:simple-serialize:1.2.453"
+        compile "com.eaglesakura:simple-logger:2.0.463"
+        compile "com.eaglesakura:android-commons:2.1.3"
 
         /**
          * UnitTest
          */
-        androidTestCompile "com.eaglesakura:android-devicetest-support:2.1.270"
-        testCompile "com.eaglesakura:android-unittest-support:1.4.206"
+        androidTestCompile "com.eaglesakura:android-devicetest-support:2.1.272"
+        testCompile "com.eaglesakura:android-unittest-support:1.4.207"
     }
 }
 
