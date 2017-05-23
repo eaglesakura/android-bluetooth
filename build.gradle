@@ -15,8 +15,8 @@ def BINTRAY_GPG_PASS = System.env.BINTRAY_GPG_PASS
 
 buildscript {
     repositories {
-        jcenter()
         maven { url "https://maven.google.com" }
+        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -27,8 +27,8 @@ buildscript {
 }
 
 repositories {
-    jcenter()
     maven { url "https://maven.google.com" }
+    jcenter()
     maven { url "https://dl.bintray.com/eaglesakura/maven/" }
     mavenCentral()
 }
