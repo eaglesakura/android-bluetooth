@@ -87,7 +87,7 @@ public class BlePeripheralDeviceConnection extends BleDeviceConnection {
                     long mAbortTime = System.currentTimeMillis() + mMaxConnectSleepTimeMs;
 
                     @Override
-                    public boolean isCanceled() throws Throwable {
+                    public boolean isCanceled() throws Exception {
                         // GATT接続される前にタイムアウト時刻を過ぎたらabortさせる
                         if (!session.mGattConnected) {
                             if (System.currentTimeMillis() >= mAbortTime) {
