@@ -38,8 +38,8 @@ group = "com.eaglesakura"
 version = ARTIFACT_VERSION + getArtifactVersionSuffix()
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.1"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -48,15 +48,15 @@ android {
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 26
         // Device Test
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"    // JUnit4
     }
 }
 
 dependencies {
-    compile "com.eaglesakura:simple-logger:2.0.463"
-    compile "com.eaglesakura:android-commons:2.2.11"
+    compile "com.eaglesakura:simple-logger:2.1.0"
+    compile "com.eaglesakura:android-commons:2.3.1"
 
     /**
      * UnitTest

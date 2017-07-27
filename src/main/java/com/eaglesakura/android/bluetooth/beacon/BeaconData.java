@@ -59,11 +59,11 @@ public class BeaconData {
     }
 
     public int getMajor() {
-        return major;
+        return (int) major & 0xFFFF;
     }
 
     public int getMinor() {
-        return minor;
+        return (int) minor & 0xFFFF;
     }
 
 

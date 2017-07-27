@@ -23,39 +23,58 @@ import java.util.List;
  * BluetoothDeviceを自動スキャンする
  */
 public class BluetoothDeviceScanner {
-    BluetoothManager bluetoothManager;
+    BluetoothManager mBluetoothManager;
 
-    BluetoothAdapter bluetoothAdapter;
+    BluetoothAdapter mBluetoothAdapter;
 
     /**
      * 発見したデバイスのキャッシュ
      */
-    List<BluetoothDeviceCache> deviceCaches = new ArrayList<>();
+    List<BluetoothDeviceCache> mDeviceCaches = new ArrayList<>();
 
     /**
      * 指定時間以上前に発見されたデバイスはclean対象となる
      * デフォルト時間は要調整
      */
-    long existCacheTimeMs = 1000 * 15;
+    long mExistCacheTimeMs = 1000 * 15;
 
     /**
      * RSSIをキャッシュする時間
      * デフォルト時間は要調整
      */
-    long rssiCacheTimeMs = 1000 * 5;
+    long mRssiCacheTimeMs = 1000 * 5;
 
-    final Context context;
+    final Context mContext;
 
-    final Runnable scanStopRunnable = new Runnable() {
+    final Runnable mScanStopRunnable = new Runnable() {
 
         @Override
         public void run() {
             stopScan();
-            listener.onScanTimeout(BluetoothDeviceScanner.this);
+            mScanListener.onScanTimeout(BluetoothDeviceScanner.this);
         }
     };
 
-    DeviceScanListener listener;
+    /**
+     * スキャン時のハンドリング
+     * デフォルトで何もしないListenerを登録しておく
+     */
+    DeviceScanListener mScanListener = new DeviceScanListener() {
+        @Override
+        public void onDeviceFound(BluetoothDeviceScanner self, BluetoothDeviceCache device) {
+
+        }
+
+        @Override
+        public void onDeviceUpdated(BluetoothDeviceScanner self, BluetoothDeviceCache device) {
+
+        }
+
+        @Override
+        public void onScanTimeout(BluetoothDeviceScanner self) {
+
+        }
+    };
 
     final BluetoothDeviceType mode;
 
@@ -84,16 +103,16 @@ public class BluetoothDeviceScanner {
                     cache = new BluetoothDeviceCache(device, rssi, scanRecord);
 
                     // キャッシュを追加する
-                    deviceCaches.add(cache);
+                    mDeviceCaches.add(cache);
 
                     // コールバック呼び出し
-                    listener.onDeviceFound(BluetoothDeviceScanner.this, cache);
+                    mScanListener.onDeviceFound(BluetoothDeviceScanner.this, cache);
                 } else {
                     // キャッシュを更新する
                     cache.sync(device, rssi, scanRecord);
 
                     // コールバック呼び出し
-                    listener.onDeviceUpdated(BluetoothDeviceScanner.this, cache);
+                    mScanListener.onDeviceUpdated(BluetoothDeviceScanner.this, cache);
                 }
             }
         }
@@ -104,7 +123,7 @@ public class BluetoothDeviceScanner {
      */
     public void cleanDeviceCaches() {
         synchronized (cacheLock) {
-            Iterator<BluetoothDeviceCache> iterator = deviceCaches.iterator();
+            Iterator<BluetoothDeviceCache> iterator = mDeviceCaches.iterator();
             while (iterator.hasNext()) {
                 BluetoothDeviceCache deviceCache = iterator.next();
                 if (!deviceCache.exist()) {
@@ -124,7 +143,7 @@ public class BluetoothDeviceScanner {
     public List<BluetoothDeviceCache> getExistDeviceCaches() {
         cleanDeviceCaches();
         synchronized (cacheLock) {
-            return new ArrayList<>(deviceCaches);
+            return new ArrayList<>(mDeviceCaches);
         }
     }
 
@@ -134,7 +153,7 @@ public class BluetoothDeviceScanner {
     public void remove(BluetoothDevice device) {
         cleanDeviceCaches();
         synchronized (cacheLock) {
-            Iterator<BluetoothDeviceCache> iterator = deviceCaches.iterator();
+            Iterator<BluetoothDeviceCache> iterator = mDeviceCaches.iterator();
             while (iterator.hasNext()) {
                 BluetoothDeviceCache cache = iterator.next();
                 if (cache.device == device) {
@@ -154,7 +173,7 @@ public class BluetoothDeviceScanner {
         cleanDeviceCaches();
 
         // キャッシュチェック
-        for (BluetoothDeviceCache cache : deviceCaches) {
+        for (BluetoothDeviceCache cache : mDeviceCaches) {
             if (cache.address.equals(device.getAddress())) {
                 // 一致した
                 return cache;
@@ -187,13 +206,13 @@ public class BluetoothDeviceScanner {
                     if (cache == null) {
                         // キャッシュが見つからないので、新規にヒットしたデバイス
                         cache = new BluetoothDeviceCache(device, rssi, null);
-                        deviceCaches.add(cache);
+                        mDeviceCaches.add(cache);
 
-                        listener.onDeviceFound(BluetoothDeviceScanner.this, cache);
+                        mScanListener.onDeviceFound(BluetoothDeviceScanner.this, cache);
                     } else {
                         // キャッシュヒットしたので、更新する
                         cache.sync(device, rssi, null);
-                        listener.onDeviceUpdated(BluetoothDeviceScanner.this, cache);
+                        mScanListener.onDeviceUpdated(BluetoothDeviceScanner.this, cache);
                     }
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
@@ -211,7 +230,7 @@ public class BluetoothDeviceScanner {
      */
     @SuppressLint("InlinedApi")
     public BluetoothDeviceScanner(Context context, BluetoothDeviceType mode) {
-        this.context = context;
+        this.mContext = context;
         this.mode = mode;
 
         if (mode == BluetoothDeviceType.BluetoothLE) {
@@ -219,7 +238,7 @@ public class BluetoothDeviceScanner {
                 throw new UnsupportedOperationException("BLE not support API LEVEL");
             }
 
-            bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            mBluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
             // コールバッククラスを設定する
             leScanCallback = new LeScanCallbackImpl();
         }
@@ -228,8 +247,8 @@ public class BluetoothDeviceScanner {
     /**
      * リスナ指定を行う
      */
-    public void setListener(DeviceScanListener listener) {
-        this.listener = listener;
+    public void setScanListener(DeviceScanListener scanListener) {
+        this.mScanListener = scanListener;
     }
 
     /**
@@ -238,7 +257,7 @@ public class BluetoothDeviceScanner {
      * @param existCacheTimeMs キャッシュが有効な時間(ミリ秒)
      */
     public void setExistCacheTimeMs(long existCacheTimeMs) {
-        this.existCacheTimeMs = existCacheTimeMs;
+        this.mExistCacheTimeMs = existCacheTimeMs;
     }
 
     /**
@@ -247,7 +266,7 @@ public class BluetoothDeviceScanner {
      * @param rssiCacheTimeMs キャッシュが有効な時間(ミリ秒)
      */
     public void setRssiCacheTimeMs(long rssiCacheTimeMs) {
-        this.rssiCacheTimeMs = rssiCacheTimeMs;
+        this.mRssiCacheTimeMs = rssiCacheTimeMs;
     }
 
     /**
@@ -257,22 +276,22 @@ public class BluetoothDeviceScanner {
     public synchronized void startScan(long timeoutMs) {
         BleLog.debug("scan mode :: " + mode);
         if (mode == BluetoothDeviceType.BluetoothLE) {
-            bluetoothAdapter = bluetoothManager.getAdapter();
-            if (bluetoothAdapter == null) {
+            mBluetoothAdapter = mBluetoothManager.getAdapter();
+            if (mBluetoothAdapter == null) {
                 throw new IllegalStateException("Bluetooth disabled...");
             }
 
-            bluetoothAdapter.startLeScan((LeScanCallback) leScanCallback);
+            mBluetoothAdapter.startLeScan((LeScanCallback) leScanCallback);
         } else {
-            bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
             IntentFilter filter = new IntentFilter();
             filter.addAction(BluetoothDevice.ACTION_FOUND);
             filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-            context.registerReceiver(bluetoothReceiver, filter);
-            bluetoothAdapter.startDiscovery();
+            mContext.registerReceiver(bluetoothReceiver, filter);
+            mBluetoothAdapter.startDiscovery();
         }
-        UIHandler.postDelayedUI(scanStopRunnable, timeoutMs);
+        UIHandler.postDelayedUI(mScanStopRunnable, timeoutMs);
     }
 
     /**
@@ -281,16 +300,16 @@ public class BluetoothDeviceScanner {
      */
     @SuppressLint("NewApi")
     public synchronized void stopScan() {
-        if (bluetoothAdapter != null) {
+        if (mBluetoothAdapter != null) {
             if (mode == BluetoothDeviceType.BluetoothLE) {
-                bluetoothAdapter.stopLeScan((LeScanCallback) leScanCallback);
+                mBluetoothAdapter.stopLeScan((LeScanCallback) leScanCallback);
             } else {
-                context.unregisterReceiver(bluetoothReceiver);
-                bluetoothAdapter.cancelDiscovery();
+                mContext.unregisterReceiver(bluetoothReceiver);
+                mBluetoothAdapter.cancelDiscovery();
             }
-            UIHandler.getInstance().removeCallbacks(scanStopRunnable);
+            UIHandler.getInstance().removeCallbacks(mScanStopRunnable);
 
-            bluetoothAdapter = null;
+            mBluetoothAdapter = null;
         }
     }
 
@@ -400,7 +419,7 @@ public class BluetoothDeviceScanner {
          * キャッシュが有効であればtrue
          */
         public boolean exist() {
-            return (System.currentTimeMillis() - updatedDate.getTime()) < existCacheTimeMs;
+            return (System.currentTimeMillis() - updatedDate.getTime()) < mExistCacheTimeMs;
         }
 
         /**
@@ -513,7 +532,7 @@ public class BluetoothDeviceScanner {
                 Iterator<RssiCache> iterator = rssiCaches.iterator();
                 while (iterator.hasNext()) {
                     RssiCache cache = iterator.next();
-                    if ((currentTime - cache.timeMs) > rssiCacheTimeMs) {
+                    if ((currentTime - cache.timeMs) > mRssiCacheTimeMs) {
                         // 有効なキャッシュ時間を超えたらclean
                         iterator.remove();
                     }
