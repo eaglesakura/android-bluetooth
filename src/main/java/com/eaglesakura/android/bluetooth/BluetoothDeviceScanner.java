@@ -595,15 +595,20 @@ public class BluetoothDeviceScanner {
     public static double calcDeviceDistance(int rssi, int txPower) {
         try {
             // 距離をチェック
-            double distance = 0;
-            double ratio = (double) rssi / (double) txPower;
-            if (ratio < 1.0) {
-                distance = Math.pow(ratio, 10);
-            } else {
-                distance = (0.89976) * Math.pow(ratio, 7.7095) + 0.111;
-            }
-
+            // http://qiita.com/shu223/items/7c4e87c47eca65724305
+            double distance = Math.pow(10.0, ((double) txPower - (double) rssi) / 20.0);
             return distance;
+
+//            // 距離をチェック
+//            double distance = 0;
+//            double ratio = (double) rssi / (double) txPower;
+//            if (ratio < 1.0) {
+//                distance = Math.pow(ratio, 10);
+//            } else {
+//                distance = (0.89976) * Math.pow(ratio, 7.7095) + 0.111;
+//            }
+//
+//            return distance;
         } catch (Exception e) {
             return 0;
         }
